@@ -15,26 +15,47 @@ It's kind of stupid. Feel free to suggest another. I think the repo name should 
 it currently is `php-druid-query` while the namespace is `DruidFamiliar`. :/
 
 
+Changelog
+-----------
+
+0.2.x Major refactoring
+
+- Query and Response Handling separated. All interfaces renamed and redesigned.
+  - `IDruidConnection` is now `IDruidQueryExecutor`.
+  - `IDruidQuery` is split into `IDruidQueryGenerator` and `IDruidQueryParameters` and `IDruidQueryResponseHandler`.
+  - `BaseQuery` is no longer needed, many similar classes were deprecated or removed.
+  - `DruidNodeConnection` is now `DruidNodeDruidQueryExecutor`.
+
+0.1.0 Initial release
+
+Quick sketch for sharing early.
+
 Typical Use
 ---------------
-
+// TODO Rewrite the typical use to demonstrate how things work now
 In general, this wrapper's purpose is to streamline the execution of queries by encapsulating the cruft from the `HTTP` nature of Druid and the analytical grammar in query configuration.
 
 1. Instantiate a connection, configured to hit a Druid endpoint.
-2. Instantiate a parameterized query, configured with parameters.
-3. Combine the connection and query to execute it, getting the result.
+2. Instantiate a query generator object for the desired query.
+3. Instantiate a query parameters object, configured with desired query parameters.
+4. Instantiate a result handler to format the results (otherwise use `DoNothingResponseHandler`)
+5. Combine the connection, query, parameters, and response handler to execute it, getting the result.
 
 Interface wise, this looks like:
 
-1. Instantiate a `IDruidConnection`, configured to hit a Druid endpoint.
-2. Instantiate a `IDruidQuery`, configured with parameters.
-3. Run the `IDruidConnection`'s `executeQuery` function with the `IDruidQuery`, getting the result.
+1. Instantiate a `IDruidQueryExecutor`, configured to hit a Druid endpoint.
+2. Instantiate a `IDruidQueryGenerator`.
+3. Instantiate a `IDruidQueryParameters`, configured with parameters.
+4. Instantiate a `IDruidQueryResponseHandler`.
+5. Run the `IDruidQueryExecutor`'s `executeQuery` function with the `IDruidQuery`, getting the result.
 
 Implementation wise, this can look like:
 
-1. Instantiate a `DruidNodeConnection`, configured to hit a Druid endpoint.
-2. Instantiate a `SegmentMetadataDruidQuery`, configured with parameters.
-3. Run the `DruidNodeConnection`'s `executeQuery` function with the `SegmentMetadataDruidQuery`, getting the result.
+1. Instantiate a `DruidNodeDruidQueryExecutor`, configured to hit a Druid endpoint.
+2. Instantiate a `SegmentMetadataDruidQuery`.
+3. Instantiate a `SegmentMetadataDruidQueryParameters`, configured with parameters.
+4. Instantiate a `SegmentMetadataResponseHandler`.
+5. Run the `DruidNodeDruidQueryExecutor`'s `executeQuery` function with the classes spawned in the previous steps, getting the result.
 
 
 How to Install
@@ -77,7 +98,7 @@ Once that is in, `composer install` and `composer update` should work.
 Once those are run, require Composer's autoloader and you are off to the races, or tree circles as it were (bad Druid reference):
 
 1. `require 'vendor/autoload.php';`
-2. `$yay = new \DruidFamiliar\TimeBoundaryDruidQuery('my-cool-data-source');`
+2. `$yay = new \DruidFamiliar\Query\TimeBoundaryDruidQuery('my-cool-data-source');`
 3. Refer to the `Typical Use` section above.
 
 

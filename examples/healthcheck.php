@@ -6,6 +6,9 @@
  * and you will either get "Good to go!" or "Problem encountered :("
  */
 
+use DruidFamiliar\Response\TimeBoundaryResponse;
+use DruidFamiliar\QueryParameters\TimeBoundaryQueryParameters;
+
 require_once('../vendor/autoload.php');
 $examplesDir = dirname(__FILE__);
 $examplesConfig = require_once($examplesDir . '/_examples-config.php');
@@ -19,16 +22,23 @@ date_default_timezone_set('America/Denver');
 
 try
 {
-    $c = new \DruidFamiliar\DruidNodeConnection($druidHost, $druidPort);
+    $c = new \DruidFamiliar\DruidNodeDruidQueryExecutor($druidHost, $druidPort);
 
-    $q = new \DruidFamiliar\TransformingTimeBoundaryDruidQuery($druidDataSource);
+    $q = new \DruidFamiliar\QueryGenerator\TimeBoundaryDruidQueryGenerator();
 
-    $r = $c->executeQuery($q);
+    $params = new TimeBoundaryQueryParameters($druidDataSource);
+
+    $responseHandler = new DruidFamiliar\ResponseHandler\TimeBoundaryResponseHandler();
+
+    /**
+     * @var TimeBoundaryResponse $timeBoundaryResponse
+     */
+    $timeBoundaryResponse = $c->executeQuery($q, $params, $responseHandler);
 
     echo "DruidFamiliar\n";
     echo "Talking to $druidHost on port $druidPort.\n";
 
-    if ( isset( $r['minTime'] ) ) {
+    if ( isset( $timeBoundaryResponse->minTime ) ) {
         echo "Good to go!\n";
     } else {
         echo "Problem encountered :(\n";
